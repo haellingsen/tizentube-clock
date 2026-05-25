@@ -1,46 +1,37 @@
 // TizenTube + Clock overlay
-// Loads TizenTube ad-blocking, then adds a persistent clock in top-right corner
+// Fetches TizenTube ad-blocking script via fetch+eval (bypasses CSP),
+// then injects a persistent clock in the top-right corner.
 
 (function () {
-    // Load TizenTube userScript
-    var s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/@foxreis/tizentube/dist/userScript.js';
-    document.head.appendChild(s);
+    // Load TizenTube via fetch+eval to bypass CSP script-src restrictions
+    fetch('https://cdn.jsdelivr.net/npm/@foxreis/tizentube/dist/userScript.js')
+        .then(function (r) { return r.text(); })
+        .then(function (code) { eval(code); })
+        .catch(function (e) { console.warn('TizenTube load failed:', e); });
 
-    // Wait for page to be ready, then inject clock
+    // Inject clock overlay
     function injectClock() {
-        if (document.body) {
-            var clock = document.createElement('div');
-            clock.id = 'tizen-clock-overlay';
-            clock.style.cssText = [
-                'position:fixed',
-                'top:28px',
-                'right:36px',
-                'z-index:99999',
-                'background:rgba(0,0,0,0.55)',
-                'color:#fff',
-                'font-size:38px',
-                'font-family:sans-serif',
-                'font-weight:bold',
-                'padding:8px 18px',
-                'border-radius:10px',
-                'letter-spacing:2px',
-                'pointer-events:none',
-                'user-select:none'
-            ].join(';');
-            document.body.appendChild(clock);
+        if (!document.body) { setTimeout(injectClock, 300); return; }
+        if (document.getElementById('tz-clock')) return;
 
-            function tick() {
-                var now = new Date();
-                var h = String(now.getHours()).padStart(2, '0');
-                var m = String(now.getMinutes()).padStart(2, '0');
-                clock.textContent = h + ':' + m;
-            }
-            tick();
-            setInterval(tick, 10000);
-        } else {
-            setTimeout(injectClock, 500);
+        var clock = document.createElement('div');
+        clock.id = 'tz-clock';
+        clock.style.cssText =
+            'position:fixed;top:24px;right:32px;z-index:2147483647;' +
+            'background:rgba(0,0,0,0.6);color:#fff;' +
+            'font-size:36px;font-weight:bold;font-family:sans-serif;' +
+            'padding:6px 16px;border-radius:8px;letter-spacing:2px;' +
+            'pointer-events:none;';
+        document.body.appendChild(clock);
+
+        function tick() {
+            var d = new Date();
+            clock.textContent =
+                String(d.getHours()).padStart(2, '0') + ':' +
+                String(d.getMinutes()).padStart(2, '0');
         }
+        tick();
+        setInterval(tick, 10000);
     }
 
     if (document.readyState === 'loading') {
