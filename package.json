@@ -1,0 +1,15 @@
+{
+  "name": "tizentube-clock",
+  "appName": "TizenTube + Clock",
+  "version": "1.0.0",
+  "description": "TizenTube with clock overlay",
+  "packageType": "mods",
+  "websiteURL": "https://youtube.com/tv?additionalDataUrl=http%3A%2F%2Flocalhost%3A8085%2Fdial%2Fapps%2FYouTube",
+  "main": "clock.js",
+  "keys": [
+    "MediaPlayPause", "MediaPlay", "MediaPause",
+    "MediaStop", "MediaFastForward", "MediaRewind",
+    "MediaTrackNext", "MediaTrackPrevious"
+  ],
+  "license": "MIT"
+}
